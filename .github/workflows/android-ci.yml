@@ -42,7 +42,9 @@ jobs:
         working-directory: android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace
+          which node || command -v node
+          node -v
+          ./gradlew -PnodeExecutable="$(which node || command -v node)" assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
