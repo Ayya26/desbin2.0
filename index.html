@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrasonic Pest Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Welcome Page -->
+    <div id="welcomePage" class="page active">
+        <div class="container">
+            <div class="welcome-content">
+                <div class="logo">
+                    <i class="fas fa-wave-square"></i>
+                </div>
+                <h1>Ultrasonic Pest Control</h1>
+                <p class="subtitle">Kontrol hama dengan teknologi ultrasonik yang aman dan efektif</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aman untuk manusia</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-leaf"></i>
+                        <span>Ramah lingkungan</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Efektif 24/7</span>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="goToPestSelection()">
+                    <i class="fas fa-play"></i>
+                    Mulai Kontrol Hama
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pest Selection Page -->
+    <div id="pestSelectionPage" class="page">
+        <div class="container">
+            <!-- Welcome Header -->
+            <div class="welcome-header">
+                <div class="welcome-info">
+                    <h2 id="welcomeMessage">Selamat Datang!</h2>
+                    <div class="location-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="location-details">
+                            <span id="locationText">Mendeteksi lokasi...</span>
+                            <small id="locationTime">WIB</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="weather-widget">
+                    <div class="weather-icon"><i class="fas fa-sun" id="weatherIcon"></i></div>
+                    <div class="weather-info">
+                        <div class="temperature">
+                            <span id="temperature">28°C</span>
+                        </div>
+                        <div class="weather-desc">
+                            <span id="weatherDescription">Cerah</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header">
+                <button class="btn-back" onclick="handleBackFromPestSelection()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2>Pilih Jenis Hama</h2>
+            </div>
+
+            <!-- Tabs Content: Usir Hama -->
+            <div id="tabUsir">
+                <div class="pest-categories">
+                    <div class="pest-category" onclick="selectPest('mice')">
+                        <div class="pest-icon" aria-label="tikus">🐭</div>
+                        <h3>Tikus</h3>
+                        <p>Frekuensi: 20-30 kHz</p>
+                        <div class="status-indicator" id="mice-status"></div>
+                    </div>
+                    
+                    <div class="pest-category" onclick="selectPest('birds')">
+                        <div class="pest-icon" aria-label="burung">🐦</div>
+                        <h3>Burung</h3>
+                        <p>Frekuensi: 15-25 kHz</p>
+                        <div class="status-indicator" id="birds-status"></div>
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <div class="power-control">
+                        <button class="btn-power" id="powerBtn" onclick="togglePower()">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                        <span id="powerStatus">OFF</span>
+                    </div>
+                    
+                    
+                    <div class="timer-control">
+                        <label>Timer (menit):</label>
+                        <select id="timerSelect" onchange="setTimer(this.value)">
+                            <option value="0">Terus menerus</option>
+                            <option value="30">30 menit</option>
+                            <option value="60">1 jam</option>
+                            <option value="120">2 jam</option>
+                            <option value="240">4 jam</option>
+                            <option value="480">8 jam</option>
+                        </select>
+                        <div class="timer-countdown" id="timerCountdown" style="display: none;">
+                            <span id="countdownText">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="status-display">
+                    <div class="status-item">
+                        <i class="fas fa-signal"></i>
+                        <span>Status: <span id="deviceStatus">Tidak Terhubung</span></span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Waktu Aktif: <span id="activeTime">00:00</span></span>
+                    </div>
+                </div>
+
+                <!-- ESP32 Direct Controls -->
+                <div class="control-panel" style="margin-top: 16px;">
+                    <div class="timer-control">
+                        <button onclick="startRepellant(20000, 60)">Start 20kHz (1 menit)</button>
+                        <button onclick="startRepellant(40000, 120)">Start 40kHz (2 menit)</button>
+                        <button onclick="stopRepellant()">Stop</button>
+                        <button onclick="getStatus()">Status</button>
+                    </div>
+                    <p id="status" style="margin-top: 8px;"></p>
+                </div>
+            </div>
+
+            <!-- Tabs Content: Riwayat -->
+            <div id="tabRiwayat" style="display: none;">
+                <div class="history-header">
+                    <h3>Riwayat Penggunaan Alat</h3>
+                </div>
+                <div class="history-toolbar">
+                    <div class="toolbar-group">
+                        <label for="filterDate">Tanggal</label>
+                        <input type="date" id="filterDate" onchange="onHistoryFilterChange()" />
+                    </div>
+                    <div class="toolbar-group">
+                        <label for="filterPest">Hama</label>
+                        <select id="filterPest" onchange="onHistoryFilterChange()">
+                            <option value="all">Semua</option>
+                            <option value="mice">Tikus</option>
+                            <option value="birds">Burung</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="historyEmpty" class="history-empty" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>Belum ada riwayat</p>
+                </div>
+                <ul id="historyList" class="history-list"></ul>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" id="navUsir" onclick="setActiveTab('usir')">
+                <i class="fas fa-bullhorn"></i>
+                <span>Usir Hama</span>
+            </button>
+            <button class="nav-item" id="navRiwayat" onclick="setActiveTab('riwayat')">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm ci || npm i
+
+      # 4️⃣ Build web app (hasil build ini nanti disalin ke android oleh Capacitor)
+      - name: Build Web Assets
+        run: |
+          npm run build
+
+      # 5️⃣ Prepare Capacitor Android
+      - name: Prepare Capacitor Android
+        run: |
+          # Pastikan proyek android sudah ada
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          # Sinkronkan file build web ke Android
+          npx cap sync android
+
+      # 6️⃣ Setup Java (untuk Gradle)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 7️⃣ Setup Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 8️⃣ Build Debug APK
+      - name: Build Debug APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      # 9️⃣ Upload APK sebagai artifact hasil build
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desbin-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
