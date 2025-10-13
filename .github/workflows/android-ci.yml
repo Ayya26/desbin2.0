@@ -22,8 +22,9 @@ jobs:
 
       - name: Prepare Capacitor Android
         run: |
-          npx cap add android || true
-          npx cap copy android
+          npx cap add android --npm-client npm
+          npx cap sync android
+          test -f android/capacitor.settings.gradle && echo "Capacitor Android prepared"
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -33,6 +34,9 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
 
       - name: Build Debug APK
         working-directory: android
