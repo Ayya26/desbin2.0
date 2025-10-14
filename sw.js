@@ -4,7 +4,9 @@ const ASSETS = [
 	'./index.html',
 	'./styles.css',
 	'./script.js',
-	'./manifest.webmanifest'
+	'./manifest.webmanifest',
+	'./img/logo_ftmm.png',
+	'./img/logo_desbin.png'
 ];
 
 self.addEventListener('install', (event) => {
