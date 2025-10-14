@@ -510,38 +510,72 @@ function togglePower() {
     const powerStatus = document.getElementById('powerStatus');
     
     if (isPowerOn) {
-        powerBtn.classList.add('active');
-        powerStatus.textContent = 'ON';
-        powerStatus.style.color = '#FF6B6B';
-        sessionStartAt = Date.now();
-        
-        // Start timer if pest is selected
-        if (currentPest) {
-            applyPestFrequency(currentPest);
+    powerBtn.classList.add('active');
+    powerStatus.textContent = 'ON';
+    sessionStartAt = Date.now();
+    
+    // Get frequency value from pestFrequencies
+    const freq = pestFrequencies[currentPest].freq.replace(' kHz', '');
+    
+    // Send command to ESP32
+    sendDeviceCommand({
+        frequency: freq,
+        duration: selectedTimer * 60 // convert minutes to seconds
+    }).then(status => {
+        if (status === 'success') {
             startActiveTimer();
-        }
-        
-        // Start countdown timer if timer is set
-        if (selectedTimer > 0) {
             startTimerCountdown();
+            updateStatusIndicator(currentPest, true);
+            saveDeviceState();
+            showNotification('Alat berhasil dinyalakan', 'success');
+        } else {
+            // If failed, revert power state
+            isPowerOn = false;
+            powerBtn.classList.remove('active');
+            powerStatus.textContent = 'OFF';
+            showNotification('Gagal menyalakan alat', 'error');
         }
-        
-        showNotification('Alat ultrasonik diaktifkan', 'success');
-        sendDeviceCommand({ action: 'power', value: 'on', pest: currentPest, timerMin: selectedTimer || 0 }).catch(() => {});
-        saveDeviceState();
-    } else {
+    }).catch(error => {
+        isPowerOn = false;
         powerBtn.classList.remove('active');
         powerStatus.textContent = 'OFF';
-        powerStatus.style.color = '#666';
-        
-        // Stop timer and reset
-        stopActiveTimer();
-        resetActiveTime();
-        clearTimerCountdown();
-        saveHistoryEntry();
-        
-        showNotification('Alat ultrasonik dimatikan', 'info');
-        sendDeviceCommand({ action: 'power', value: 'off' }).catch(() => {});
+        showNotification('Error: Tidak dapat terhubung ke alat', 'error');
+    });
+} else {
+        } else {
+        // Send stop command to ESP32
+        fetch(`${API_BASE}/stop`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'stopped') {
+                powerBtn.classList.remove('active');
+                powerStatus.textContent = 'OFF';
+                powerStatus.style.color = '#666';
+                
+                // Stop timer and reset
+                stopActiveTimer();
+                resetActiveTime();
+                clearTimerCountdown();
+                saveHistoryEntry();
+                
+                showNotification('Alat ultrasonik dimatikan', 'success');
+                saveDeviceState();
+            } else {
+                // If failed to stop, keep power state on
+                isPowerOn = true;
+                showNotification('Gagal mematikan alat', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error stopping device:', error);
+            isPowerOn = true;
+            showNotification('Error: Tidak dapat terhubung ke alat', 'error');
+        });
         saveDeviceState();
     }
     
@@ -1200,22 +1234,23 @@ function getNotificationColor(type) {
 
 // REST API client (ESP32 server)
 const API_BASE = localStorage.getItem('desbin_api_base') || 'http://192.168.4.1'; // adjust as needed
-
 async function sendDeviceCommand(payload) {
     try {
-        const res = await fetch(`${API_BASE}/api/command`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+        const { frequency, duration } = payload;
+        const url = `${API_BASE}/start?frequency=${frequency}&duration=${duration}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
         });
-        if (!res.ok) throw new Error('Request failed');
-        return await res.json().catch(() => ({}));
-    } catch (e) {
-        console.warn('sendDeviceCommand failed');
-        return null;
+        const data = await response.json();
+        return data.status;
+    } catch (error) {
+        console.error('Error sending command to device:', error);
+        throw error;
     }
 }
-
 // Add CSS animations for notifications
 const style = document.createElement('style');
 style.textContent = `
