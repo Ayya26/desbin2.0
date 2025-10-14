@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrasonic Pest Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Welcome Page -->
+    <div id="welcomePage" class="page active">
+        <!-- WiFi Status -->
+        <div class="wifi-status">
+            <i class="fas fa-wifi" id="wifiIcon"></i>
+            <span id="wifiInfo">Mendeteksi WiFi...</span>
+        </div>
+        
+        <div class="container">
+            <div class="welcome-content">
+                <div class="logo">
+                    <img src="img/logo_ftmm.png" alt="FTMM Logo" class="logo-img">
+                    <img src="img/logo_desbin.png" alt="Desbin Logo" class="logo-img">
+                </div>
+                <h1>AgriWave Ultrasonic Control</h1>
+                <p class="subtitle">Kontrol hama dengan teknologi ultrasonik yang aman dan efektif</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Aman untuk manusia</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-leaf"></i>
+                        <span>Ramah lingkungan</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Efektif 24/7</span>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="goToPestSelection()">
+                    <i class="fas fa-play"></i>
+                    Mulai Kontrol Hama
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pest Selection Page -->
+    <div id="pestSelectionPage" class="page">
+        <div class="container">
+            <!-- Back Button -->
+            <div class="back-button-container">
+                <button class="btn-back" onclick="handleBackFromPestSelection()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+
+            <!-- Welcome Header -->
+            <div class="welcome-header">
+                <div class="welcome-info">
+                    <h2 id="welcomeMessage">Selamat Datang!</h2>
+                    <div class="location-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="location-details">
+                            <span id="locationText">Mendeteksi lokasi...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <div class="time-info">
+                        <span id="locationTime">WIB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header">
+                <h2>Pilih Jenis Hama</h2>
+            </div>
+
+            <!-- Tabs Content: Usir Hama -->
+            <div id="tabUsir">
+                <div class="pest-categories">
+                    <div class="pest-category" onclick="selectPest('mice')">
+                        <div class="pest-icon" aria-label="tikus">🐭</div>
+                        <h3>Tikus</h3>
+                        <p>Frekuensi: 40 kHz</p>
+                        <div class="status-indicator" id="mice-status"></div>
+                    </div>
+                    
+                    <div class="pest-category" onclick="selectPest('birds')">
+                        <div class="pest-icon" aria-label="burung">🐦</div>
+                        <h3>Burung</h3>
+                        <p>Frekuensi: 20 kHz</p>
+                        <div class="status-indicator" id="birds-status"></div>
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <div class="timer-control">
+                        <label>Timer (menit):</label>
+                        <select id="timerSelect" onchange="setTimer(this.value)" disabled>
+                            <option value="0">Terus menerus</option>
+                            <option value="2">2 menit</option>
+                            <option value="5">5 menit</option>
+                            <option value="10">10 menit</option>
+                            <option value="15">15 menit</option>
+                            <option value="30">30 menit</option>
+                            <option value="60">1 jam</option>
+                            <option value="120">2 jam</option>
+                            <option value="180">3 jam</option>
+                        </select>
+                        <div class="timer-countdown" id="timerCountdown" style="display: none;">
+                            <span id="countdownText">00:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="power-control">
+                        <button class="btn-power" id="powerBtn" onclick="togglePower()">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                        <span id="powerStatus">OFF</span>
+                    </div>
+                </div>
+                
+                <div class="status-display">
+                    <div class="status-item">
+                        <i class="fas fa-signal"></i>
+                        <span>Status: <span id="deviceStatus">Tidak Terhubung</span></span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Waktu Aktif: <span id="activeTime">00:00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Content: Riwayat -->
+            <div id="tabRiwayat" style="display: none;">
+                <div class="history-header">
+                    <h3>Riwayat Penggunaan Alat</h3>
+                </div>
+                <div class="history-toolbar">
+                    <div class="toolbar-group">
+                        <label for="filterDate">Tanggal</label>
+                        <input type="date" id="filterDate" onchange="onHistoryFilterChange()" />
+                    </div>
+                    <div class="toolbar-group">
+                        <label for="filterPest">Hama</label>
+                        <select id="filterPest" onchange="onHistoryFilterChange()">
+                            <option value="all">Semua</option>
+                            <option value="mice">Tikus</option>
+                            <option value="birds">Burung</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="historyEmpty" class="history-empty" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>Belum ada riwayat</p>
+                </div>
+                <ul id="historyList" class="history-list"></ul>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" id="navUsir" onclick="setActiveTab('usir')">
+                <i class="fas fa-bullhorn"></i>
+                <span>Usir Hama</span>
+            </button>
+            <button class="nav-item" id="navRiwayat" onclick="setActiveTab('riwayat')">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
