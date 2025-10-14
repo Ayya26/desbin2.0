@@ -44,7 +44,8 @@ body::before {
 
 .container.history-layout {
     justify-content: flex-start;
-    padding-top: 0px;
+    align-items: flex-start;
+    padding-top: 0 !important;
     padding-bottom: 120px; /* extra space for bottom nav */
     margin-top: 0;
 }
