@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+    // Ensure welcome page is initially visible and pest selection is hidden
+    const welcomePage = document.getElementById('welcomePage');
+    const pestSelectionPage = document.getElementById('pestSelectionPage');
+    
+    if (welcomePage && pestSelectionPage) {
+        welcomePage.classList.add('active');
+        pestSelectionPage.classList.remove('active');
+    }
+    
     // Initialize timer display
     updateActiveTimeDisplay();
     
